@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "check-drift": "node scripts/check-drift.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
