@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  turbopack: {
+    resolveAlias: {
+      ws: "./lib/stubs/empty.ts",
+    },
+  },
 };
 
 export default nextConfig;
