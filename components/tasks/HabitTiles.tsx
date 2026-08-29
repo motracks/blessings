@@ -19,7 +19,7 @@ import type { DailyCheckin } from '@/lib/types';
 
 const CIRCLE_SIZE = 132;
 
-type BodyHabitKey = 'steps' | 'shower' | 'outside';
+type BodyHabitKey = 'water' | 'steps' | 'shower' | 'outside';
 type SoulHabitKey = 'meal1' | 'meal2' | 'writing' | 'creativity';
 type MindHabitKey = 'journaling' | 'reading' | 'praying' | 'meditating';
 
@@ -27,9 +27,13 @@ const BODY_HABITS: {
   key: BodyHabitKey;
   label: string;
   icon: typeof Footprints;
-  field: keyof Pick<DailyCheckin, 'steps_done' | 'shower_done' | 'outside_done'>;
-  rpc: 'award_steps' | 'award_shower' | 'award_outside';
+  field: keyof Pick<
+    DailyCheckin,
+    'water_done' | 'steps_done' | 'shower_done' | 'outside_done'
+  >;
+  rpc: 'award_water' | 'award_steps' | 'award_shower' | 'award_outside';
 }[] = [
+  { key: 'water', label: 'Water', icon: Droplet, field: 'water_done', rpc: 'award_water' },
   { key: 'steps', label: 'Daily Steps', icon: Footprints, field: 'steps_done', rpc: 'award_steps' },
   { key: 'shower', label: 'Shower', icon: ShowerHead, field: 'shower_done', rpc: 'award_shower' },
   { key: 'outside', label: 'Been Outside', icon: Trees, field: 'outside_done', rpc: 'award_outside' },
@@ -67,7 +71,7 @@ const MIND_HABITS: {
   { key: 'meditating', label: 'Meditating', icon: Flower2, field: 'meditating_done', rpc: 'award_meditating' },
 ];
 
-type SavingKey = BodyHabitKey | SoulHabitKey | MindHabitKey | 'water';
+type SavingKey = BodyHabitKey | SoulHabitKey | MindHabitKey;
 
 interface HabitTilesProps {
   userId: string;
@@ -106,51 +110,10 @@ export function HabitTiles({ userId, today, checkin, onCheckinUpdated }: HabitTi
     callAward(habit.key, habit.rpc, () => ({ ...checkin, [habit.field]: true }));
   }
 
-  function handleWaterTap() {
-    if (!checkin || checkin.water_count >= 3) return;
-    callAward('water', 'award_water', () => ({
-      ...checkin,
-      water_count: checkin.water_count + 1,
-      water_done: checkin.water_count + 1 >= 3,
-    }));
-  }
-
-  const waterCount = checkin?.water_count ?? 0;
-  const waterDone = waterCount >= 3;
-
   return (
     <div className="w-full max-w-sm">
       <SectionLabel>Body</SectionLabel>
       <div className="grid grid-cols-2 gap-x-3 gap-y-6">
-        <div className="flex justify-center">
-          <button
-            onClick={handleWaterTap}
-            disabled={!checkin || savingKey === 'water' || waterDone}
-            style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
-            className={`relative flex shrink-0 flex-col items-center justify-center gap-1 rounded-full border p-4 text-center transition-all duration-300 disabled:cursor-default ${
-              waterDone ? 'border-tile-done-border bg-tile-done' : 'border-tile-idle-border bg-tile-idle'
-            }`}
-          >
-            {waterDone && <OutsideCheck />}
-            <Droplet
-              size={32}
-              strokeWidth={1.1}
-              className={waterDone ? 'text-accent' : 'text-text-soft'}
-            />
-            <span className={`text-xs ${waterDone ? 'text-text' : 'text-text-muted'}`}>Water</span>
-            <span className="flex gap-1">
-              {[0, 1, 2].map((i) => (
-                <span
-                  key={i}
-                  className={`h-1 w-1 rounded-full border ${
-                    i < waterCount ? 'border-accent bg-accent' : 'border-text-soft bg-transparent'
-                  }`}
-                />
-              ))}
-            </span>
-          </button>
-        </div>
-
         {BODY_HABITS.map((habit) => {
           const isDone = !!checkin?.[habit.field];
           const Icon = habit.icon;

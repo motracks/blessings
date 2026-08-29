@@ -47,7 +47,6 @@ export interface DailyCheckin {
   mental_load: number | null;
   steps_done: boolean;
   water_done: boolean;
-  water_count: number;
   shower_done: boolean;
   outside_done: boolean;
   meal1_done: boolean;

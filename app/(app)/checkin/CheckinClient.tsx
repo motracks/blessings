@@ -107,7 +107,6 @@ export function CheckinClient({
             mental_load: null,
             steps_done: false,
             water_done: false,
-            water_count: 0,
             shower_done: false,
             outside_done: false,
             meal1_done: false,
