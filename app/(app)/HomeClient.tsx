@@ -34,42 +34,37 @@ export function HomeClient({
     }
   }, [recentCheckins, affirmations]);
 
+  const showEnergyPicker = hasMorningCheckin === false;
+
   return (
-    <main className="relative min-h-[calc(100dvh-64px)] px-6 py-8">
+    <main className="relative flex min-h-[calc(100dvh-64px)] flex-col items-center px-6 pt-10">
       <AmbientBackground />
 
-      {/* Plant circle: its own center pinned to the exact vertical/horizontal
-          center of the screen, independent of the affirmation text below it. */}
-      <div
-        className="absolute z-10 aspect-square w-full max-w-xs overflow-hidden rounded-full shadow-sm"
-        style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-      >
+      {/* One flow column: the affirmation and the energy picker always stack
+          with real spacing between them — no absolute positioning that could
+          let them overlap on short screens. Flexible spacers keep the plant
+          near the vertical centre on tall screens; on short screens the
+          column simply grows and the page scrolls rather than cramping. */}
+      <div className="z-10 flex-1" aria-hidden="true" />
+
+      <div className="z-10 aspect-square w-full max-w-[17rem] shrink-0 overflow-hidden rounded-full shadow-sm sm:max-w-xs">
         <PlantDisplay phase={phase} daysSinceLastOpen={daysSinceLastOpen} />
       </div>
 
-      {/* Affirmation sits below the circle's vertical center, offset by half
-          the circle's own radius plus spacing — it never affects the circle's position. */}
-      {affirmation && (
-        <p
-          className="absolute z-10 max-w-[220px] text-center text-lg italic leading-relaxed text-text-muted"
-          style={{
-            top: 'calc(50% + 12rem)',
-            left: '50%',
-            transform: 'translateX(-50%)',
-          }}
-        >
-          {affirmation}
-        </p>
-      )}
-
-      <div
-        className="absolute z-10 w-full max-w-sm px-6"
-        style={{ bottom: '2rem', left: '50%', transform: 'translateX(-50%)' }}
-      >
-        {hasMorningCheckin === false && (
+      <div className="z-10 mt-8 flex w-full max-w-sm flex-col items-center gap-8">
+        {affirmation && (
+          <p className="max-w-[240px] text-center text-lg italic leading-relaxed text-text-muted">
+            {affirmation}
+          </p>
+        )}
+        {showEnergyPicker && (
           <EnergyPicker onSaved={() => setHasMorningCheckin(true)} />
         )}
       </div>
+
+      {/* Bottom spacer keeps the column clear of the ambient wave that sits
+          just above the nav bar (fixed, ~80px tall at bottom-16). */}
+      <div className="z-10 min-h-[9rem] flex-1" aria-hidden="true" />
     </main>
   );
 }
