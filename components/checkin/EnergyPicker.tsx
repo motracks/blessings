@@ -94,6 +94,10 @@ export function EnergyPicker({ onSaved, answeredValue }: EnergyPickerProps) {
           );
         })}
       </div>
+      <div className="mt-2 flex justify-between px-1 text-[11px] text-text-soft">
+        <span>none at all</span>
+        <span>full of energy</span>
+      </div>
     </div>
   );
 }

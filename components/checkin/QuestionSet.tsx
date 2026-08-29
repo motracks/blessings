@@ -15,7 +15,7 @@ interface QuestionSetProps {
 // labelled; 2-5 stay as bare numbers to keep the row uncluttered.
 const SCALE_ENDPOINTS: Record<string, { low: string; high: string }> = {
   sleep: { low: 'not restful', high: 'deeply restful' },
-  mental_load: { low: 'clear', high: 'overflowing' },
+  mental_load: { low: 'not at all', high: 'clear' },
   engagement: { low: 'not at all', high: 'completely' },
   connection: { low: 'not at all', high: 'completely' },
   identity: { low: 'not at all', high: 'completely' },
