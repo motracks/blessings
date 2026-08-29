@@ -133,16 +133,22 @@ export function CheckinClient({
       <div className="flex w-full max-w-sm flex-col gap-10">
         <section>
           <p className="mb-4 text-center text-sm text-text-muted">Morning</p>
-          {!hasMorningEnergy ? (
-            <EnergyPicker onSaved={handleEnergySaved} />
-          ) : (
+          <div className="flex flex-col gap-10">
+            {/* Energy stays visible all day — read-only once answered, so
+                it's still here if the user opens Check-in without having
+                set it on the home screen. */}
+            {hasMorningEnergy ? (
+              <EnergyPicker answeredValue={checkin!.energy_level!} />
+            ) : (
+              <EnergyPicker onSaved={handleEnergySaved} />
+            )}
             <QuestionSet
               period="morning"
               questions={morningQuestions}
               responses={morningResponses}
               onSubmitted={setMorningResponses}
             />
-          )}
+          </div>
         </section>
 
         <section>

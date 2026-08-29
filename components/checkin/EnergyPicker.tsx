@@ -14,15 +14,20 @@ const ENERGY_LABELS = [
 ];
 
 interface EnergyPickerProps {
-  onSaved: (energyLevel: number) => void;
+  onSaved?: (energyLevel: number) => void;
+  // When set, the picker renders read-only with this value highlighted —
+  // used on the Check-in page so the answer stays visible after it's given.
+  answeredValue?: number;
 }
 
-export function EnergyPicker({ onSaved }: EnergyPickerProps) {
+export function EnergyPicker({ onSaved, answeredValue }: EnergyPickerProps) {
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
 
+  const readOnly = answeredValue != null;
+
   async function handleSelect(level: number) {
-    if (saving) return;
+    if (readOnly || saving) return;
     setSaving(true);
     setSelected(level);
 
@@ -50,12 +55,14 @@ export function EnergyPicker({ onSaved }: EnergyPickerProps) {
         p_date: today,
         p_energy_level: level,
       });
-      onSaved(level);
+      onSaved?.(level);
     } else {
       setSaving(false);
       setSelected(null);
     }
   }
+
+  const activeValue = readOnly ? answeredValue : selected;
 
   return (
     <div className="w-full max-w-sm text-center">
@@ -63,18 +70,23 @@ export function EnergyPicker({ onSaved }: EnergyPickerProps) {
       <div className="flex items-center justify-center gap-2">
         {ENERGY_LABELS.map((label, i) => {
           const level = i + 1;
-          const isSelected = selected === level;
+          const isSelected = activeValue === level;
           return (
             <button
               key={level}
               onClick={() => handleSelect(level)}
-              disabled={saving}
+              disabled={readOnly || saving}
               aria-label={label}
+              aria-pressed={readOnly ? isSelected : undefined}
               style={{ width: 40, height: 40 }}
-              className={`flex shrink-0 items-center justify-center rounded-full border text-sm transition-all duration-300 disabled:opacity-60 ${
+              className={`flex shrink-0 items-center justify-center rounded-full border text-sm transition-all duration-300 ${
+                readOnly ? 'cursor-default' : 'disabled:opacity-60'
+              } ${
                 isSelected
                   ? 'border-tile-done-border bg-tile-done text-text'
-                  : 'border-tile-idle-border bg-tile-idle text-text-muted'
+                  : `border-tile-idle-border bg-tile-idle text-text-muted${
+                      readOnly ? ' opacity-50' : ''
+                    }`
               }`}
             >
               {level}
