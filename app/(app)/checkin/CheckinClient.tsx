@@ -15,6 +15,20 @@ import type {
 
 type StructuredCheckin = Checkin & { checkin_responses: CheckinResponse[] };
 
+// Display order within each period (keys not listed fall to the end).
+const QUESTION_ORDER = [
+  'sleep',
+  'mental_load',
+  'engagement',
+  'connection',
+  'identity',
+  'self_kindness',
+];
+const orderOf = (key: string) => {
+  const i = QUESTION_ORDER.indexOf(key);
+  return i === -1 ? QUESTION_ORDER.length : i;
+};
+
 interface CheckinClientProps {
   userId: string;
   recentCheckins: DailyCheckin[];
@@ -39,11 +53,17 @@ export function CheckinClient({
   const [eveningResponses, setEveningResponses] = useState<CheckinResponse[]>([]);
 
   const morningQuestions = useMemo(
-    () => questions.filter((q) => q.period === 'morning'),
+    () =>
+      questions
+        .filter((q) => q.period === 'morning')
+        .sort((a, b) => orderOf(a.question_key) - orderOf(b.question_key)),
     [questions]
   );
   const eveningQuestions = useMemo(
-    () => questions.filter((q) => q.period === 'evening'),
+    () =>
+      questions
+        .filter((q) => q.period === 'evening')
+        .sort((a, b) => orderOf(a.question_key) - orderOf(b.question_key)),
     [questions]
   );
 
@@ -96,6 +116,8 @@ export function CheckinClient({
             reading_done: false,
             praying_done: false,
             meditating_done: false,
+            writing_done: false,
+            creativity_done: false,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           }

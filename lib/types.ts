@@ -15,7 +15,9 @@ export type WaterDropSource =
   | 'journaling'
   | 'reading'
   | 'praying'
-  | 'meditating';
+  | 'meditating'
+  | 'writing'
+  | 'creativity';
 
 export interface Profile {
   id: string;
@@ -54,6 +56,8 @@ export interface DailyCheckin {
   reading_done: boolean;
   praying_done: boolean;
   meditating_done: boolean;
+  writing_done: boolean;
+  creativity_done: boolean;
   created_at: string;
   updated_at: string;
 }

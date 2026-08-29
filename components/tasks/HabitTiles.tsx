@@ -11,6 +11,8 @@ import {
   BookOpen,
   HandHeart,
   Flower2,
+  PenLine,
+  Palette,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import type { DailyCheckin } from '@/lib/types';
@@ -18,7 +20,7 @@ import type { DailyCheckin } from '@/lib/types';
 const CIRCLE_SIZE = 132;
 
 type BodyHabitKey = 'steps' | 'shower' | 'outside';
-type SoulHabitKey = 'meal1' | 'meal2';
+type SoulHabitKey = 'meal1' | 'meal2' | 'writing' | 'creativity';
 type MindHabitKey = 'journaling' | 'reading' | 'praying' | 'meditating';
 
 const BODY_HABITS: {
@@ -37,11 +39,16 @@ const SOUL_HABITS: {
   key: SoulHabitKey;
   label: string;
   icon: typeof UtensilsCrossed;
-  field: keyof Pick<DailyCheckin, 'meal1_done' | 'meal2_done'>;
-  rpc: 'award_meal1' | 'award_meal2';
+  field: keyof Pick<
+    DailyCheckin,
+    'meal1_done' | 'meal2_done' | 'writing_done' | 'creativity_done'
+  >;
+  rpc: 'award_meal1' | 'award_meal2' | 'award_writing' | 'award_creativity';
 }[] = [
   { key: 'meal1', label: '1st Proper Meal', icon: UtensilsCrossed, field: 'meal1_done', rpc: 'award_meal1' },
   { key: 'meal2', label: '2nd Proper Meal', icon: UtensilsCrossed, field: 'meal2_done', rpc: 'award_meal2' },
+  { key: 'writing', label: 'Writing', icon: PenLine, field: 'writing_done', rpc: 'award_writing' },
+  { key: 'creativity', label: 'Creativity', icon: Palette, field: 'creativity_done', rpc: 'award_creativity' },
 ];
 
 const MIND_HABITS: {

@@ -11,6 +11,18 @@ interface QuestionSetProps {
   onSubmitted: (responses: CheckinResponse[]) => void;
 }
 
+// Endpoint captions shown under the 1 and 6 buttons. Only the poles are
+// labelled; 2-5 stay as bare numbers to keep the row uncluttered.
+const SCALE_ENDPOINTS: Record<string, { low: string; high: string }> = {
+  sleep: { low: 'not restful', high: 'deeply restful' },
+  mental_load: { low: 'clear', high: 'overflowing' },
+  engagement: { low: 'not at all', high: 'completely' },
+  connection: { low: 'not at all', high: 'completely' },
+  identity: { low: 'not at all', high: 'completely' },
+  self_kindness: { low: 'not at all', high: 'completely' },
+};
+const DEFAULT_ENDPOINTS = { low: 'not at all', high: 'completely' };
+
 export function QuestionSet({ period, questions, responses, onSubmitted }: QuestionSetProps) {
   const initial: Record<string, number> = {};
   for (const r of responses) initial[r.question_key] = r.value;
@@ -68,6 +80,7 @@ export function QuestionSet({ period, questions, responses, onSubmitted }: Quest
         <Scale
           key={q.question_key}
           label={q.text_en}
+          endpoints={SCALE_ENDPOINTS[q.question_key] ?? DEFAULT_ENDPOINTS}
           value={values[q.question_key] ?? null}
           disabled={saving}
           onSelect={(v) => {
@@ -99,11 +112,13 @@ export function QuestionSet({ period, questions, responses, onSubmitted }: Quest
 
 function Scale({
   label,
+  endpoints,
   value,
   disabled,
   onSelect,
 }: {
   label: string;
+  endpoints: { low: string; high: string };
   value: number | null;
   disabled: boolean;
   onSelect: (v: number) => void;
@@ -114,12 +129,14 @@ function Scale({
       <div className="flex items-center justify-center gap-2">
         {[1, 2, 3, 4, 5, 6].map((level) => {
           const isSelected = value === level;
+          const endpointLabel =
+            level === 1 ? endpoints.low : level === 6 ? endpoints.high : null;
           return (
             <button
               key={level}
               onClick={() => onSelect(level)}
               disabled={disabled}
-              aria-label={String(level)}
+              aria-label={endpointLabel ? `${level} — ${endpointLabel}` : String(level)}
               style={{ width: 40, height: 40 }}
               className={`flex shrink-0 items-center justify-center rounded-full border text-sm transition-all duration-300 disabled:opacity-60 ${
                 isSelected
@@ -131,6 +148,10 @@ function Scale({
             </button>
           );
         })}
+      </div>
+      <div className="mt-2 flex justify-between px-1 text-[11px] text-text-soft">
+        <span>{endpoints.low}</span>
+        <span>{endpoints.high}</span>
       </div>
     </div>
   );
