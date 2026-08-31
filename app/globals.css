@@ -66,28 +66,27 @@ body {
 }
 
 /* A single water drop drifting gently up off a habit tile when it's
-   completed. Slow and calm, lingering briefly before it fades. */
+   completed. One continuous, evenly-paced rise — opacity fades in at the
+   start and out at the end without ever changing the speed of the drift. */
 @keyframes water-drop {
   0% {
     opacity: 0;
-    transform: translateY(8px) scale(0.7);
+    transform: translateY(6px) scale(0.8);
   }
-  25% {
+  15% {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
-  70% {
+  75% {
     opacity: 1;
-    transform: translateY(-34px) scale(0.98);
   }
   100% {
     opacity: 0;
-    transform: translateY(-52px) scale(0.92);
+    transform: translateY(-56px) scale(1);
   }
 }
 
 .animate-water-drop {
-  animation: water-drop 2.4s ease-in-out forwards;
+  animation: water-drop 2.4s ease-out forwards;
 }
 
 /* Gentle scale pulse on the tile itself the moment it's completed. */
