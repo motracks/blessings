@@ -83,31 +83,42 @@ interface HabitTilesProps {
 export function HabitTiles({ userId, today, checkin, onCheckinUpdated }: HabitTilesProps) {
   const [savingKey, setSavingKey] = useState<SavingKey | null>(null);
   const [errorKey, setErrorKey] = useState<SavingKey | null>(null);
+  // Key of the tile currently playing its "drop earned" animation.
+  const [celebratingKey, setCelebratingKey] = useState<SavingKey | null>(null);
 
-  async function callAward(key: SavingKey, rpc: string, apply: () => DailyCheckin) {
+  async function handleToggle<
+    T extends { key: SavingKey; field: keyof DailyCheckin; rpc: string }
+  >(habit: T) {
     if (!checkin || savingKey) return;
-    setSavingKey(key);
+
+    const currentlyDone = !!checkin[habit.field];
+    setSavingKey(habit.key);
     setErrorKey(null);
 
     const supabase = createClient();
-    const { error } = await supabase.rpc(rpc, {
-      p_user_id: userId,
-      p_date: today,
-    });
+    const { error } = currentlyDone
+      ? await supabase.rpc('undo_habit', {
+          p_user_id: userId,
+          p_date: today,
+          p_habit: habit.key,
+        })
+      : await supabase.rpc(habit.rpc, {
+          p_user_id: userId,
+          p_date: today,
+        });
 
     if (error) {
-      setErrorKey(key);
+      setErrorKey(habit.key);
     } else {
-      onCheckinUpdated(apply());
+      onCheckinUpdated({ ...checkin, [habit.field]: !currentlyDone });
+      if (!currentlyDone) {
+        setCelebratingKey(habit.key);
+        // Clear regardless of whether the CSS animation actually runs
+        // (it doesn't under prefers-reduced-motion).
+        window.setTimeout(() => setCelebratingKey(null), 1400);
+      }
     }
     setSavingKey(null);
-  }
-
-  function handleToggle<T extends { key: SavingKey; field: keyof DailyCheckin; rpc: string }>(
-    habit: T
-  ) {
-    if (!checkin || checkin[habit.field]) return;
-    callAward(habit.key, habit.rpc, () => ({ ...checkin, [habit.field]: true }));
   }
 
   return (
@@ -123,7 +134,8 @@ export function HabitTiles({ userId, today, checkin, onCheckinUpdated }: HabitTi
               label={habit.label}
               Icon={Icon}
               isDone={isDone}
-              disabled={!checkin || savingKey === habit.key || isDone}
+              celebrating={celebratingKey === habit.key}
+              disabled={!checkin || savingKey === habit.key}
               onClick={() => handleToggle(habit)}
             />
           );
@@ -141,7 +153,8 @@ export function HabitTiles({ userId, today, checkin, onCheckinUpdated }: HabitTi
               label={habit.label}
               Icon={Icon}
               isDone={isDone}
-              disabled={!checkin || savingKey === habit.key || isDone}
+              celebrating={celebratingKey === habit.key}
+              disabled={!checkin || savingKey === habit.key}
               onClick={() => handleToggle(habit)}
             />
           );
@@ -159,7 +172,8 @@ export function HabitTiles({ userId, today, checkin, onCheckinUpdated }: HabitTi
               label={habit.label}
               Icon={Icon}
               isDone={isDone}
-              disabled={!checkin || savingKey === habit.key || isDone}
+              celebrating={celebratingKey === habit.key}
+              disabled={!checkin || savingKey === habit.key}
               onClick={() => handleToggle(habit)}
             />
           );
@@ -208,22 +222,26 @@ function HabitCircle({
   label,
   Icon,
   isDone,
+  celebrating,
   disabled,
   onClick,
 }: {
   label: string;
   Icon: typeof Footprints;
   isDone: boolean;
+  celebrating: boolean;
   disabled: boolean;
   onClick: () => void;
 }) {
   return (
-    <div className="flex justify-center">
+    <div className="relative flex justify-center">
       <button
         onClick={onClick}
         disabled={disabled}
         style={{ width: CIRCLE_SIZE, height: CIRCLE_SIZE }}
         className={`relative flex shrink-0 flex-col items-center justify-center gap-2 rounded-full border p-4 text-center transition-all duration-300 disabled:cursor-default ${
+          celebrating ? 'animate-tile-pop' : ''
+        } ${
           isDone ? 'border-tile-done-border bg-tile-done' : 'border-tile-idle-border bg-tile-idle'
         }`}
       >
@@ -233,6 +251,27 @@ function HabitCircle({
           {label}
         </span>
       </button>
+
+      {celebrating && (
+        <span
+          className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2"
+          aria-hidden="true"
+        >
+          {[0, 1, 2].map((i) => (
+            <Droplet
+              key={i}
+              size={16}
+              strokeWidth={1.4}
+              className="animate-water-drop absolute text-accent"
+              style={{
+                left: `${(i - 1) * 14}px`,
+                animationDelay: `${i * 110}ms`,
+                fill: 'var(--accent)',
+              }}
+            />
+          ))}
+        </span>
+      )}
     </div>
   );
 }
