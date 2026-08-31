@@ -114,8 +114,9 @@ export function HabitTiles({ userId, today, checkin, onCheckinUpdated }: HabitTi
       if (!currentlyDone) {
         setCelebratingKey(habit.key);
         // Clear regardless of whether the CSS animation actually runs
-        // (it doesn't under prefers-reduced-motion).
-        window.setTimeout(() => setCelebratingKey(null), 1400);
+        // (it doesn't under prefers-reduced-motion). Slightly longer than
+        // the 2.4s water-drop animation.
+        window.setTimeout(() => setCelebratingKey(null), 2600);
       }
     }
     setSavingKey(null);
@@ -257,19 +258,12 @@ function HabitCircle({
           className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2"
           aria-hidden="true"
         >
-          {[0, 1, 2].map((i) => (
-            <Droplet
-              key={i}
-              size={16}
-              strokeWidth={1.4}
-              className="animate-water-drop absolute text-accent"
-              style={{
-                left: `${(i - 1) * 14}px`,
-                animationDelay: `${i * 110}ms`,
-                fill: 'var(--accent)',
-              }}
-            />
-          ))}
+          <Droplet
+            size={18}
+            strokeWidth={1.4}
+            className="animate-water-drop text-accent"
+            style={{ fill: 'var(--accent)' }}
+          />
         </span>
       )}
     </div>
